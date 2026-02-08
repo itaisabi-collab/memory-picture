@@ -380,6 +380,7 @@
         let currentQuestionIndex = 0;
         let correctAnswers = 0;
         let playerName = '';
+        let gameState = 'idle'; // idle, viewing, questions
         
         // Canvas setup
         const canvas = document.getElementById('pictureCanvas');
@@ -395,6 +396,11 @@
             canvas.height = displayHeight;
             
             console.log('Canvas resized to:', canvas.width, 'x', canvas.height);
+            
+            // Redraw current picture if exists
+            if (currentPicture && gameState === 'viewing') {
+                drawPicture(currentPicture);
+            }
         }
         
         // Initial resize after DOM is ready
@@ -952,6 +958,7 @@
             currentQuestions = generateQuestions(currentPicture);
             currentQuestionIndex = 0;
             correctAnswers = 0;
+            gameState = 'viewing';
             
             // Hide overlay to show canvas
             document.getElementById('overlay').classList.add('hidden');
@@ -963,16 +970,18 @@
             setTimeout(() => {
                 resizeCanvas();
                 console.log('Drawing picture, canvas size:', canvas.width, 'x', canvas.height);
-                console.log('Picture data:', JSON.stringify(currentPicture));
+                console.log('Overlay hidden:', document.getElementById('overlay').classList.contains('hidden'));
                 drawPicture(currentPicture);
                 
                 const viewTime = getViewTime();
+                console.log('Starting timer for', viewTime, 'seconds');
                 document.getElementById('viewTime').textContent = viewTime.toFixed(1);
                 showTimer(viewTime);
             }, 100);
         }
         
         function showTimer(seconds) {
+            console.log('showTimer called with', seconds, 'seconds');
             const timerEl = document.getElementById('timer');
             timerEl.classList.remove('hidden');
             
@@ -982,6 +991,7 @@
             function tick() {
                 remaining -= 0.1;
                 if (remaining <= 0) {
+                    console.log('Timer done, showing questions');
                     timerEl.classList.add('hidden');
                     showQuestions();
                 } else {
@@ -990,10 +1000,12 @@
                 }
             }
             
+            // Start first tick after 100ms
             setTimeout(tick, 100);
         }
         
         function showQuestions() {
+            gameState = 'questions';
             document.getElementById('overlay').classList.remove('hidden');
             document.getElementById('questionArea').classList.remove('hidden');
             showQuestion();
