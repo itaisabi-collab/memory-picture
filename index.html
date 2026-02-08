@@ -921,12 +921,17 @@
             return shuffled;
         }
         
-        async function startGame() {
-            playerName = document.getElementById('playerName').value.trim() || 'אנונימי';
-            level = 1;
-            score = 0;
-            updateStats();
-            startRound();
+        function startGame() {
+            try {
+                playerName = document.getElementById('playerName').value.trim() || 'אנונימי';
+                level = 1;
+                score = 0;
+                updateStats();
+                startRound();
+            } catch (err) {
+                console.error('Error starting game:', err);
+                alert('שגיאה בהתחלת המשחק: ' + err.message);
+            }
         }
         
         function startRound() {
