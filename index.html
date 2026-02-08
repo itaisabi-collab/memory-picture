@@ -386,12 +386,15 @@
         const ctx = canvas.getContext('2d');
         
         function resizeCanvas() {
-            // Use fixed dimensions that work on mobile
-            const container = canvas.parentElement;
-            const containerWidth = container.clientWidth || 400;
-            const containerHeight = container.clientHeight || 350;
-            canvas.width = Math.max(300, containerWidth);
-            canvas.height = Math.max(300, containerHeight);
+            // Get the actual displayed size from CSS
+            const displayWidth = canvas.offsetWidth || 400;
+            const displayHeight = canvas.offsetHeight || 350;
+            
+            // Set canvas internal resolution to match display size
+            canvas.width = displayWidth;
+            canvas.height = displayHeight;
+            
+            console.log('Canvas resized to:', canvas.width, 'x', canvas.height);
         }
         
         // Initial resize after DOM is ready
@@ -959,12 +962,14 @@
             // Small delay to let DOM update before drawing
             setTimeout(() => {
                 resizeCanvas();
+                console.log('Drawing picture, canvas size:', canvas.width, 'x', canvas.height);
+                console.log('Picture data:', JSON.stringify(currentPicture));
                 drawPicture(currentPicture);
                 
                 const viewTime = getViewTime();
                 document.getElementById('viewTime').textContent = viewTime.toFixed(1);
                 showTimer(viewTime);
-            }, 50);
+            }, 100);
         }
         
         function showTimer(seconds) {
