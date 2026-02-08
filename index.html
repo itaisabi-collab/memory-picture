@@ -961,22 +961,22 @@
         function showTimer(seconds) {
             const timerEl = document.getElementById('timer');
             timerEl.classList.remove('hidden');
-            timerEl.textContent = seconds.toFixed(1);
             
-            const startTime = Date.now();
-            const duration = seconds * 1000;
+            let remaining = seconds;
+            timerEl.textContent = remaining.toFixed(1);
             
-            const interval = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const remaining = Math.max(0, (duration - elapsed) / 1000);
-                timerEl.textContent = remaining.toFixed(1);
-                
+            function tick() {
+                remaining -= 0.1;
                 if (remaining <= 0) {
-                    clearInterval(interval);
                     timerEl.classList.add('hidden');
                     showQuestions();
+                } else {
+                    timerEl.textContent = remaining.toFixed(1);
+                    setTimeout(tick, 100);
                 }
-            }, 100);
+            }
+            
+            setTimeout(tick, 100);
         }
         
         function showQuestions() {
