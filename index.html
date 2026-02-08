@@ -1093,8 +1093,13 @@
         
         // Leaderboard functions
         async function saveScore() {
-            if (!supabaseClient) return;
+            console.log('saveScore called, playerName:', playerName, 'score:', score, 'level:', level);
+            if (!supabaseClient) {
+                console.error('Supabase client not initialized!');
+                return;
+            }
             try {
+                console.log('Attempting to insert score...');
                 const { error } = await supabaseClient
                     .from('memory_picture_scores')
                     .insert([{
@@ -1109,6 +1114,8 @@
                     if (error.code === '42P01') {
                         console.log('Table does not exist yet');
                     }
+                } else {
+                    console.log('Score saved successfully!');
                 }
             } catch (err) {
                 console.error('Error:', err);
