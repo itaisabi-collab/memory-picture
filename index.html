@@ -365,7 +365,12 @@
         // Supabase setup
         const SUPABASE_URL = 'https://whpdshyifbvihfvxnqjz.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndocGRzaHlpZmJ2aWhmdnhucWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgzNTM3MTMsImV4cCI6MjA1MzkyOTcxM30.LowymS9pfWBQZXXrKuqE8A_sHQXw9cx-cXxPauIKTh4';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let supabaseClient = null;
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch(e) {
+            console.error('Supabase init error:', e);
+        }
         
         // Game state
         let level = 1;
@@ -1058,8 +1063,9 @@
         
         // Leaderboard functions
         async function saveScore() {
+            if (!supabaseClient) return;
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('memory_picture_scores')
                     .insert([{
                         name: playerName,
@@ -1080,8 +1086,13 @@
         }
         
         async function loadLeaderboard() {
+            if (!supabaseClient) {
+                document.getElementById('leaderboardBody').innerHTML = 
+                    '<tr><td colspan="4">הטבלה תהיה זמינה בקרוב</td></tr>';
+                return;
+            }
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('memory_picture_scores')
                     .select('*')
                     .order('score', { ascending: false })
@@ -1114,6 +1125,9 @@
                     '<tr><td colspan="4">שגיאה בטעינה</td></tr>';
             }
         }
+        
+        // Expose functions to global scope for onclick handlers
+        window.startGame = startGame;
     </script>
 </body>
 </html>
