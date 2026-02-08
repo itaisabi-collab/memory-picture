@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>זיכרון תמונה 🧠📸</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -21,7 +22,7 @@
             justify-content: center;
             color: white;
             padding: 20px;
-            overflow: hidden;
+            overflow-x: hidden;
         }
         
         .container {
@@ -59,7 +60,7 @@
             position: relative;
             width: 100%;
             max-width: 500px;
-            height: 350px;
+            height: 400px;
             margin: 20px auto;
             border-radius: 20px;
             overflow: hidden;
@@ -108,31 +109,38 @@
         }
         
         #question {
-            font-size: 1.4em;
-            margin-bottom: 20px;
+            font-size: 1.8em;
+            margin-bottom: 25px;
             line-height: 1.4;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.3) 0%, rgba(68, 160, 141, 0.3) 100%);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(78, 205, 196, 0.5);
         }
         
         .answers {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 12px;
         }
         
         .answer-btn {
-            padding: 15px;
-            font-size: 1.1em;
+            padding: 18px;
+            font-size: 1.2em;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.15);
             color: white;
-            border: 2px solid rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            font-weight: 500;
         }
         
         .answer-btn:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.25);
             transform: scale(1.02);
         }
         
@@ -200,38 +208,94 @@
         
         #levelReached {
             font-size: 1.3em;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             opacity: 0.8;
-        }
-        
-        .feedback {
-            font-size: 1.2em;
-            margin: 15px 0;
-            padding: 10px;
-            border-radius: 10px;
-        }
-        
-        .feedback.correct {
-            background: rgba(46, 204, 113, 0.3);
-            color: #2ecc71;
-        }
-        
-        .feedback.wrong {
-            background: rgba(231, 76, 60, 0.3);
-            color: #e74c3c;
         }
         
         #questionProgress {
             margin-top: 15px;
-            font-size: 0.9em;
+            font-size: 1em;
             opacity: 0.7;
+        }
+        
+        /* Leaderboard styles */
+        #leaderboard {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        #leaderboard h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #4ecdc4;
+        }
+        
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 12px 15px;
+            text-align: center;
+        }
+        
+        .leaderboard-table th {
+            background: rgba(78, 205, 196, 0.3);
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+        
+        .leaderboard-table tr:nth-child(even) {
+            background: rgba(255,255,255,0.03);
+        }
+        
+        .leaderboard-table tr:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .leaderboard-table .rank-1 { color: #FFD700; }
+        .leaderboard-table .rank-2 { color: #C0C0C0; }
+        .leaderboard-table .rank-3 { color: #CD7F32; }
+        
+        /* Name input */
+        .name-input-container {
+            margin: 20px 0;
+        }
+        
+        .name-input {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            border: 2px solid rgba(78, 205, 196, 0.5);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            text-align: center;
+            width: 200px;
+        }
+        
+        .name-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .name-input:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            background: rgba(255,255,255,0.15);
         }
         
         @media (max-width: 500px) {
             h1 { font-size: 1.8em; }
-            #gameArea { height: 300px; }
+            #gameArea { height: 350px; }
             .answers { grid-template-columns: 1fr; }
             .stats { flex-direction: column; gap: 10px; }
+            #question { font-size: 1.4em; }
+            .answer-btn { font-size: 1.1em; }
         }
     </style>
 </head>
@@ -258,6 +322,9 @@
                         אחר כך תענו על שאלות על התמונה.<br>
                         ככל שמתקדמים - הזמן מתקצר! ⏱️
                     </p>
+                    <div class="name-input-container">
+                        <input type="text" id="playerName" class="name-input" placeholder="השם שלך" maxlength="20">
+                    </div>
                     <button class="btn" onclick="startGame()">🚀 התחל!</button>
                 </div>
                 
@@ -275,9 +342,31 @@
                 </div>
             </div>
         </div>
+        
+        <div id="leaderboard">
+            <h3>🏆 טבלת המובילים</h3>
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>שם</th>
+                        <th>ניקוד</th>
+                        <th>רמה</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    <tr><td colspan="4">טוען...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
+        // Supabase setup
+        const SUPABASE_URL = 'https://whpdshyifbvihfvxnqjz.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndocGRzaHlpZmJ2aWhmdnhucWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgzNTM3MTMsImV4cCI6MjA1MzkyOTcxM30.LowymS9pfWBQZXXrKuqE8A_sHQXw9cx-cXxPauIKTh4';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
         // Game state
         let level = 1;
         let score = 0;
@@ -285,6 +374,7 @@
         let currentQuestions = [];
         let currentQuestionIndex = 0;
         let correctAnswers = 0;
+        let playerName = '';
         
         // Canvas setup
         const canvas = document.getElementById('pictureCanvas');
@@ -297,6 +387,9 @@
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
+        
+        // Load leaderboard on start
+        loadLeaderboard();
         
         // Elements to draw
         const elements = {
@@ -319,7 +412,6 @@
         };
         
         function getViewTime() {
-            // Start at 5 seconds, decrease by 0.5 per level, minimum 1 second
             return Math.max(1, 5.5 - (level * 0.5));
         }
         
@@ -342,15 +434,12 @@
                 items: []
             };
             
-            // Sky element (60% chance)
             if (Math.random() < 0.6) {
                 picture.sky = randomChoice(['שמש', 'ירח', 'עננים']);
             }
             
-            // Ground (always)
             picture.ground = randomChoice(['דשא', 'חול', 'שלג']);
             
-            // Objects (1-2 based on level)
             const numObjects = Math.min(3, 1 + Math.floor(level / 3));
             const availableObjects = [...elements.objects];
             for (let i = 0; i < numObjects && availableObjects.length > 0; i++) {
@@ -358,7 +447,6 @@
                 picture.objects.push(availableObjects.splice(idx, 1)[0]);
             }
             
-            // Balloons (1-4, with colors)
             const numBalloons = randomInt(1, Math.min(4, 1 + Math.floor(level / 2)));
             const usedColors = [];
             for (let i = 0; i < numBalloons; i++) {
@@ -369,7 +457,6 @@
             picture.balloonColors = usedColors;
             picture.balloonCount = numBalloons;
             
-            // Animals (0-2)
             if (Math.random() < 0.5 + level * 0.05) {
                 const numAnimals = randomInt(1, 2);
                 const availableAnimals = [...elements.animals];
@@ -379,7 +466,6 @@
                 }
             }
             
-            // Extra items (based on level)
             if (level >= 3 && Math.random() < 0.7) {
                 picture.items.push(randomChoice(elements.items.filter(i => i !== 'בלון')));
             }
@@ -391,7 +477,6 @@
             const w = canvas.width;
             const h = canvas.height;
             
-            // Sky gradient
             const isNight = picture.sky === 'ירח';
             const skyGradient = ctx.createLinearGradient(0, 0, 0, h * 0.7);
             if (isNight) {
@@ -404,21 +489,18 @@
             ctx.fillStyle = skyGradient;
             ctx.fillRect(0, 0, w, h * 0.7);
             
-            // Ground
-            let groundColor = '#90EE90'; // grass default
+            let groundColor = '#90EE90';
             if (picture.ground === 'חול') groundColor = '#F4D03F';
             if (picture.ground === 'שלג') groundColor = '#FFFFFF';
             ctx.fillStyle = groundColor;
             ctx.fillRect(0, h * 0.7, w, h * 0.3);
             
-            // Draw flowers on grass
             if (picture.ground === 'דשא') {
                 for (let i = 0; i < 8; i++) {
                     drawFlower(randomInt(20, w - 20), h * 0.75 + randomInt(10, h * 0.2));
                 }
             }
             
-            // Sky elements
             if (picture.sky === 'שמש') {
                 drawSun(w * 0.85, h * 0.15);
             } else if (picture.sky === 'ירח') {
@@ -429,7 +511,6 @@
                 drawCloud(w * 0.7, h * 0.18);
             }
             
-            // Objects
             let objX = w * 0.15;
             picture.objects.forEach(obj => {
                 if (obj === 'עץ') drawTree(objX, h * 0.7);
@@ -439,13 +520,11 @@
                 objX += w * 0.25;
             });
             
-            // Balloons
             let balloonX = w * 0.3;
             picture.balloons.forEach((color, i) => {
                 drawBalloon(balloonX + i * 40, h * 0.35, colorMap[color] || '#e74c3c');
             });
             
-            // Animals
             let animalX = w * 0.5;
             picture.animals.forEach(animal => {
                 if (animal === 'כלב') drawDog(animalX, h * 0.78);
@@ -455,7 +534,6 @@
                 animalX += 60;
             });
             
-            // Extra items
             picture.items.forEach(item => {
                 if (item === 'כדור') drawBall(w * 0.6, h * 0.8);
                 if (item === 'שמשייה') drawUmbrella(w * 0.4, h * 0.65);
@@ -463,13 +541,11 @@
             });
         }
         
-        // Drawing functions
         function drawSun(x, y) {
             ctx.fillStyle = '#FFD700';
             ctx.beginPath();
             ctx.arc(x, y, 35, 0, Math.PI * 2);
             ctx.fill();
-            // Rays
             ctx.strokeStyle = '#FFA500';
             ctx.lineWidth = 3;
             for (let i = 0; i < 8; i++) {
@@ -514,10 +590,8 @@
         }
         
         function drawTree(x, y) {
-            // Trunk
             ctx.fillStyle = '#8B4513';
             ctx.fillRect(x - 10, y - 60, 20, 60);
-            // Leaves
             ctx.fillStyle = '#228B22';
             ctx.beginPath();
             ctx.moveTo(x, y - 120);
@@ -534,10 +608,8 @@
         }
         
         function drawHouse(x, y) {
-            // Wall
             ctx.fillStyle = '#DEB887';
             ctx.fillRect(x - 35, y - 50, 70, 50);
-            // Roof
             ctx.fillStyle = '#8B0000';
             ctx.beginPath();
             ctx.moveTo(x, y - 90);
@@ -545,26 +617,21 @@
             ctx.lineTo(x + 45, y - 50);
             ctx.closePath();
             ctx.fill();
-            // Door
             ctx.fillStyle = '#654321';
             ctx.fillRect(x - 10, y - 35, 20, 35);
-            // Window
             ctx.fillStyle = '#87CEEB';
             ctx.fillRect(x + 15, y - 40, 15, 15);
         }
         
         function drawCar(x, y) {
-            // Body
             ctx.fillStyle = '#e74c3c';
             ctx.fillRect(x - 30, y - 20, 60, 20);
             ctx.fillRect(x - 20, y - 35, 40, 15);
-            // Wheels
             ctx.fillStyle = '#333';
             ctx.beginPath();
             ctx.arc(x - 15, y, 8, 0, Math.PI * 2);
             ctx.arc(x + 15, y, 8, 0, Math.PI * 2);
             ctx.fill();
-            // Windows
             ctx.fillStyle = '#87CEEB';
             ctx.fillRect(x - 15, y - 32, 12, 10);
             ctx.fillRect(x + 3, y - 32, 12, 10);
@@ -572,11 +639,8 @@
         
         function drawBench(x, y) {
             ctx.fillStyle = '#8B4513';
-            // Seat
             ctx.fillRect(x - 30, y - 15, 60, 8);
-            // Back
             ctx.fillRect(x - 30, y - 35, 60, 5);
-            // Legs
             ctx.fillRect(x - 25, y - 15, 5, 20);
             ctx.fillRect(x + 20, y - 15, 5, 20);
         }
@@ -586,21 +650,18 @@
             ctx.beginPath();
             ctx.ellipse(x, y, 18, 22, 0, 0, Math.PI * 2);
             ctx.fill();
-            // Knot
             ctx.beginPath();
             ctx.moveTo(x - 5, y + 22);
             ctx.lineTo(x, y + 28);
             ctx.lineTo(x + 5, y + 22);
             ctx.closePath();
             ctx.fill();
-            // String
             ctx.strokeStyle = '#666';
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(x, y + 28);
             ctx.quadraticCurveTo(x + 10, y + 50, x, y + 70);
             ctx.stroke();
-            // Shine
             ctx.fillStyle = 'rgba(255,255,255,0.4)';
             ctx.beginPath();
             ctx.ellipse(x - 5, y - 5, 5, 7, -0.5, 0, Math.PI * 2);
@@ -609,22 +670,17 @@
         
         function drawDog(x, y) {
             ctx.fillStyle = '#D2691E';
-            // Body
             ctx.beginPath();
             ctx.ellipse(x, y - 12, 20, 12, 0, 0, Math.PI * 2);
             ctx.fill();
-            // Head
             ctx.beginPath();
             ctx.arc(x + 18, y - 18, 12, 0, Math.PI * 2);
             ctx.fill();
-            // Ears
             ctx.beginPath();
             ctx.ellipse(x + 25, y - 28, 5, 8, 0.3, 0, Math.PI * 2);
             ctx.fill();
-            // Legs
             ctx.fillRect(x - 12, y - 5, 6, 12);
             ctx.fillRect(x + 6, y - 5, 6, 12);
-            // Tail
             ctx.beginPath();
             ctx.moveTo(x - 18, y - 15);
             ctx.quadraticCurveTo(x - 30, y - 25, x - 25, y - 35);
@@ -635,15 +691,12 @@
         
         function drawCat(x, y) {
             ctx.fillStyle = '#808080';
-            // Body
             ctx.beginPath();
             ctx.ellipse(x, y - 10, 15, 10, 0, 0, Math.PI * 2);
             ctx.fill();
-            // Head
             ctx.beginPath();
             ctx.arc(x + 15, y - 18, 10, 0, Math.PI * 2);
             ctx.fill();
-            // Ears
             ctx.beginPath();
             ctx.moveTo(x + 10, y - 28);
             ctx.lineTo(x + 8, y - 38);
@@ -654,7 +707,6 @@
             ctx.lineTo(x + 22, y - 38);
             ctx.lineTo(x + 14, y - 30);
             ctx.fill();
-            // Tail
             ctx.beginPath();
             ctx.moveTo(x - 15, y - 10);
             ctx.quadraticCurveTo(x - 30, y - 5, x - 25, y - 25);
@@ -665,22 +717,18 @@
         
         function drawBird(x, y) {
             ctx.fillStyle = '#4169E1';
-            // Body
             ctx.beginPath();
             ctx.ellipse(x, y, 12, 8, 0, 0, Math.PI * 2);
             ctx.fill();
-            // Head
             ctx.beginPath();
             ctx.arc(x + 10, y - 3, 6, 0, Math.PI * 2);
             ctx.fill();
-            // Beak
             ctx.fillStyle = '#FFA500';
             ctx.beginPath();
             ctx.moveTo(x + 16, y - 3);
             ctx.lineTo(x + 22, y - 2);
             ctx.lineTo(x + 16, y);
             ctx.fill();
-            // Wing
             ctx.fillStyle = '#1E90FF';
             ctx.beginPath();
             ctx.ellipse(x - 2, y - 2, 8, 5, -0.3, 0, Math.PI * 2);
@@ -688,7 +736,6 @@
         }
         
         function drawButterfly(x, y) {
-            // Wings
             ctx.fillStyle = '#FF69B4';
             ctx.beginPath();
             ctx.ellipse(x - 12, y - 5, 12, 15, -0.3, 0, Math.PI * 2);
@@ -699,12 +746,10 @@
             ctx.ellipse(x - 8, y + 8, 8, 10, -0.3, 0, Math.PI * 2);
             ctx.ellipse(x + 8, y + 8, 8, 10, 0.3, 0, Math.PI * 2);
             ctx.fill();
-            // Body
             ctx.fillStyle = '#333';
             ctx.beginPath();
             ctx.ellipse(x, y, 3, 12, 0, 0, Math.PI * 2);
             ctx.fill();
-            // Antennae
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -753,7 +798,6 @@
             ctx.beginPath();
             ctx.arc(x, y, 35, Math.PI, 0);
             ctx.fill();
-            // Stripes
             ctx.fillStyle = '#c0392b';
             ctx.beginPath();
             ctx.moveTo(x - 10, y);
@@ -763,7 +807,6 @@
             ctx.moveTo(x + 15, y);
             ctx.arc(x + 15, y, 12, Math.PI, 0);
             ctx.fill();
-            // Handle
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 4;
             ctx.beginPath();
@@ -789,14 +832,12 @@
             ctx.lineTo(x - 20, y);
             ctx.closePath();
             ctx.fill();
-            // String
             ctx.strokeStyle = '#666';
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(x, y + 25);
             ctx.quadraticCurveTo(x + 20, y + 60, x - 10, y + 80);
             ctx.stroke();
-            // Tail bows
             ctx.fillStyle = '#e74c3c';
             ctx.beginPath();
             ctx.arc(x + 5, y + 45, 5, 0, Math.PI * 2);
@@ -810,7 +851,6 @@
         function generateQuestions(picture) {
             const questions = [];
             
-            // Question about sky
             if (picture.sky) {
                 questions.push({
                     q: 'מה היה בשמיים?',
@@ -825,21 +865,18 @@
                 });
             }
             
-            // Question about ground
             questions.push({
                 q: 'מה היה על הקרקע?',
                 correct: picture.ground,
                 wrong: elements.ground.filter(e => e !== picture.ground).slice(0, 3)
             });
             
-            // Question about balloon count
             questions.push({
                 q: 'כמה בלונים היו בתמונה?',
                 correct: picture.balloonCount.toString(),
                 wrong: ['1', '2', '3', '4', '5'].filter(n => n !== picture.balloonCount.toString()).slice(0, 3)
             });
             
-            // Question about balloon colors
             if (picture.balloonColors.length > 0) {
                 const correctColor = picture.balloonColors[0];
                 questions.push({
@@ -849,7 +886,6 @@
                 });
             }
             
-            // Question about objects
             if (picture.objects.length > 0) {
                 questions.push({
                     q: 'מה היה בתמונה?',
@@ -858,7 +894,6 @@
                 });
             }
             
-            // Question about animals
             if (picture.animals.length > 0) {
                 questions.push({
                     q: 'איזו חיה הייתה בתמונה?',
@@ -873,7 +908,6 @@
                 });
             }
             
-            // Shuffle and limit based on level
             const numQuestions = Math.min(5, 3 + Math.floor(level / 2));
             return shuffleArray(questions).slice(0, numQuestions);
         }
@@ -887,7 +921,8 @@
             return shuffled;
         }
         
-        function startGame() {
+        async function startGame() {
+            playerName = document.getElementById('playerName').value.trim() || 'אנונימי';
             level = 1;
             score = 0;
             updateStats();
@@ -895,23 +930,19 @@
         }
         
         function startRound() {
-            // Generate picture
             currentPicture = generatePicture();
             currentQuestions = generateQuestions(currentPicture);
             currentQuestionIndex = 0;
             correctAnswers = 0;
             
-            // Hide overlay, show picture
             document.getElementById('overlay').classList.add('hidden');
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('questionArea').classList.add('hidden');
             document.getElementById('resultScreen').classList.add('hidden');
             
-            // Draw picture
             resizeCanvas();
             drawPicture(currentPicture);
             
-            // Start timer
             const viewTime = getViewTime();
             document.getElementById('viewTime').textContent = viewTime.toFixed(1);
             showTimer(viewTime);
@@ -950,7 +981,6 @@
             document.getElementById('questionProgress').textContent = 
                 `שאלה ${currentQuestionIndex + 1} מתוך ${currentQuestions.length}`;
             
-            // Create answer buttons
             const answersEl = document.getElementById('answers');
             answersEl.innerHTML = '';
             
@@ -965,7 +995,6 @@
         }
         
         function checkAnswer(btn, isCorrect) {
-            // Disable all buttons
             document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
             
             if (isCorrect) {
@@ -974,7 +1003,6 @@
                 score += 10 * level;
             } else {
                 btn.classList.add('wrong');
-                // Show correct answer
                 document.querySelectorAll('.answer-btn').forEach(b => {
                     if (b.textContent === currentQuestions[currentQuestionIndex].correct) {
                         b.classList.add('correct');
@@ -984,7 +1012,6 @@
             
             updateStats();
             
-            // Next question after delay
             setTimeout(() => {
                 currentQuestionIndex++;
                 if (currentQuestionIndex < currentQuestions.length) {
@@ -999,27 +1026,88 @@
             const accuracy = correctAnswers / currentQuestions.length;
             
             if (accuracy >= 0.6) {
-                // Passed! Next level
                 level++;
                 updateStats();
                 setTimeout(startRound, 500);
             } else {
-                // Game over
                 showGameOver();
             }
         }
         
-        function showGameOver() {
+        async function showGameOver() {
             document.getElementById('questionArea').classList.add('hidden');
             document.getElementById('resultScreen').classList.remove('hidden');
             document.getElementById('finalScore').textContent = score;
             document.getElementById('levelReached').textContent = `הגעת לרמה ${level}`;
+            
+            // Save to leaderboard
+            await saveScore();
+            await loadLeaderboard();
         }
         
         function updateStats() {
             document.getElementById('level').textContent = level;
             document.getElementById('score').textContent = score;
             document.getElementById('viewTime').textContent = getViewTime().toFixed(1);
+        }
+        
+        // Leaderboard functions
+        async function saveScore() {
+            try {
+                const { error } = await supabase
+                    .from('memory_picture_scores')
+                    .insert([{
+                        name: playerName,
+                        score: score,
+                        level: level
+                    }]);
+                
+                if (error) {
+                    console.error('Error saving score:', error);
+                    // If table doesn't exist, try to create it
+                    if (error.code === '42P01') {
+                        console.log('Table does not exist yet');
+                    }
+                }
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        }
+        
+        async function loadLeaderboard() {
+            try {
+                const { data, error } = await supabase
+                    .from('memory_picture_scores')
+                    .select('*')
+                    .order('score', { ascending: false })
+                    .limit(10);
+                
+                if (error) {
+                    document.getElementById('leaderboardBody').innerHTML = 
+                        '<tr><td colspan="4">הטבלה תהיה זמינה בקרוב</td></tr>';
+                    return;
+                }
+                
+                if (!data || data.length === 0) {
+                    document.getElementById('leaderboardBody').innerHTML = 
+                        '<tr><td colspan="4">עדיין אין תוצאות - תהיה הראשון!</td></tr>';
+                    return;
+                }
+                
+                const tbody = document.getElementById('leaderboardBody');
+                tbody.innerHTML = data.map((entry, i) => `
+                    <tr>
+                        <td class="${i < 3 ? 'rank-' + (i+1) : ''}">${i + 1}</td>
+                        <td>${entry.name}</td>
+                        <td>${entry.score}</td>
+                        <td>${entry.level}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading leaderboard:', err);
+                document.getElementById('leaderboardBody').innerHTML = 
+                    '<tr><td colspan="4">שגיאה בטעינה</td></tr>';
+            }
         }
     </script>
 </body>
