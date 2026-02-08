@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>זיכרון תמונה 🧠📸</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 15px 0;
+            font-size: 1.2em;
+        }
+        
+        .stat {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+        
+        #gameArea {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 350px;
+            margin: 20px auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        #pictureCanvas {
+            width: 100%;
+            height: 100%;
+            background: #87CEEB;
+            display: block;
+        }
+        
+        #timer {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: #4ecdc4;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2d3436 0%, #1a1a2e 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        #questionArea {
+            width: 100%;
+        }
+        
+        #question {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .answer-btn {
+            padding: 15px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .answer-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.02);
+        }
+        
+        .answer-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .answer-btn.correct {
+            background: #2ecc71;
+            border-color: #27ae60;
+        }
+        
+        .answer-btn.wrong {
+            background: #e74c3c;
+            border-color: #c0392b;
+        }
+        
+        #startScreen, #resultScreen {
+            text-align: center;
+        }
+        
+        #startScreen h2 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        
+        #startScreen p {
+            margin-bottom: 20px;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.3em;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(78, 205, 196, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.5);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        #resultScreen h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        
+        #finalScore {
+            font-size: 3em;
+            color: #4ecdc4;
+            margin: 20px 0;
+        }
+        
+        #levelReached {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+        
+        .feedback {
+            font-size: 1.2em;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .feedback.correct {
+            background: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+        }
+        
+        .feedback.wrong {
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+        
+        #questionProgress {
+            margin-top: 15px;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 500px) {
+            h1 { font-size: 1.8em; }
+            #gameArea { height: 300px; }
+            .answers { grid-template-columns: 1fr; }
+            .stats { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 זיכרון תמונה 📸</h1>
+        
+        <div class="stats">
+            <div class="stat">רמה: <span class="stat-value" id="level">1</span></div>
+            <div class="stat">ניקוד: <span class="stat-value" id="score">0</span></div>
+            <div class="stat">זמן צפייה: <span class="stat-value" id="viewTime">5</span>שׂ</div>
+        </div>
+        
+        <div id="gameArea">
+            <canvas id="pictureCanvas"></canvas>
+            <div id="timer" class="hidden">5</div>
+            
+            <div id="overlay">
+                <div id="startScreen">
+                    <h2>🎯 איך משחקים?</h2>
+                    <p>
+                        תמונה תופיע למספר שניות.<br>
+                        נסו לזכור כמה שיותר פרטים!<br>
+                        אחר כך תענו על שאלות על התמונה.<br>
+                        ככל שמתקדמים - הזמן מתקצר! ⏱️
+                    </p>
+                    <button class="btn" onclick="startGame()">🚀 התחל!</button>
+                </div>
+                
+                <div id="questionArea" class="hidden">
+                    <div id="question"></div>
+                    <div class="answers" id="answers"></div>
+                    <div id="questionProgress"></div>
+                </div>
+                
+                <div id="resultScreen" class="hidden">
+                    <h2>🏆 סיום המשחק!</h2>
+                    <div id="finalScore">0</div>
+                    <div id="levelReached">הגעת לרמה 1</div>
+                    <button class="btn" onclick="startGame()">🔄 שחק שוב</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let level = 1;
+        let score = 0;
+        let currentPicture = null;
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        
+        // Canvas setup
+        const canvas = document.getElementById('pictureCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Elements to draw
+        const elements = {
+            sky: ['שמש', 'ירח', 'כוכבים', 'עננים', 'קשת'],
+            ground: ['דשא', 'חול', 'שלג', 'אבנים', 'פרחים'],
+            objects: ['עץ', 'בית', 'מכונית', 'אופניים', 'ספסל'],
+            animals: ['כלב', 'חתול', 'ציפור', 'פרפר', 'דג'],
+            items: ['בלון', 'כדור', 'דלי', 'שמשייה', 'עפיפון'],
+            colors: ['אדום', 'כחול', 'ירוק', 'צהוב', 'כתום', 'סגול', 'ורוד']
+        };
+        
+        const colorMap = {
+            'אדום': '#e74c3c',
+            'כחול': '#3498db',
+            'ירוק': '#2ecc71',
+            'צהוב': '#f1c40f',
+            'כתום': '#e67e22',
+            'סגול': '#9b59b6',
+            'ורוד': '#ff69b4'
+        };
+        
+        function getViewTime() {
+            // Start at 5 seconds, decrease by 0.5 per level, minimum 1 second
+            return Math.max(1, 5.5 - (level * 0.5));
+        }
+        
+        function randomChoice(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+        
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        function generatePicture() {
+            const picture = {
+                sky: null,
+                skyColor: null,
+                ground: null,
+                objects: [],
+                balloons: [],
+                animals: [],
+                items: []
+            };
+            
+            // Sky element (60% chance)
+            if (Math.random() < 0.6) {
+                picture.sky = randomChoice(['שמש', 'ירח', 'עננים']);
+            }
+            
+            // Ground (always)
+            picture.ground = randomChoice(['דשא', 'חול', 'שלג']);
+            
+            // Objects (1-2 based on level)
+            const numObjects = Math.min(3, 1 + Math.floor(level / 3));
+            const availableObjects = [...elements.objects];
+            for (let i = 0; i < numObjects && availableObjects.length > 0; i++) {
+                const idx = randomInt(0, availableObjects.length - 1);
+                picture.objects.push(availableObjects.splice(idx, 1)[0]);
+            }
+            
+            // Balloons (1-4, with colors)
+            const numBalloons = randomInt(1, Math.min(4, 1 + Math.floor(level / 2)));
+            const usedColors = [];
+            for (let i = 0; i < numBalloons; i++) {
+                const color = randomChoice(elements.colors);
+                picture.balloons.push(color);
+                if (!usedColors.includes(color)) usedColors.push(color);
+            }
+            picture.balloonColors = usedColors;
+            picture.balloonCount = numBalloons;
+            
+            // Animals (0-2)
+            if (Math.random() < 0.5 + level * 0.05) {
+                const numAnimals = randomInt(1, 2);
+                const availableAnimals = [...elements.animals];
+                for (let i = 0; i < numAnimals && availableAnimals.length > 0; i++) {
+                    const idx = randomInt(0, availableAnimals.length - 1);
+                    picture.animals.push(availableAnimals.splice(idx, 1)[0]);
+                }
+            }
+            
+            // Extra items (based on level)
+            if (level >= 3 && Math.random() < 0.7) {
+                picture.items.push(randomChoice(elements.items.filter(i => i !== 'בלון')));
+            }
+            
+            return picture;
+        }
+        
+        function drawPicture(picture) {
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            // Sky gradient
+            const isNight = picture.sky === 'ירח';
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, h * 0.7);
+            if (isNight) {
+                skyGradient.addColorStop(0, '#1a1a2e');
+                skyGradient.addColorStop(1, '#16213e');
+            } else {
+                skyGradient.addColorStop(0, '#87CEEB');
+                skyGradient.addColorStop(1, '#E0F6FF');
+            }
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, w, h * 0.7);
+            
+            // Ground
+            let groundColor = '#90EE90'; // grass default
+            if (picture.ground === 'חול') groundColor = '#F4D03F';
+            if (picture.ground === 'שלג') groundColor = '#FFFFFF';
+            ctx.fillStyle = groundColor;
+            ctx.fillRect(0, h * 0.7, w, h * 0.3);
+            
+            // Draw flowers on grass
+            if (picture.ground === 'דשא') {
+                for (let i = 0; i < 8; i++) {
+                    drawFlower(randomInt(20, w - 20), h * 0.75 + randomInt(10, h * 0.2));
+                }
+            }
+            
+            // Sky elements
+            if (picture.sky === 'שמש') {
+                drawSun(w * 0.85, h * 0.15);
+            } else if (picture.sky === 'ירח') {
+                drawMoon(w * 0.85, h * 0.15);
+                drawStars();
+            } else if (picture.sky === 'עננים') {
+                drawCloud(w * 0.2, h * 0.12);
+                drawCloud(w * 0.7, h * 0.18);
+            }
+            
+            // Objects
+            let objX = w * 0.15;
+            picture.objects.forEach(obj => {
+                if (obj === 'עץ') drawTree(objX, h * 0.7);
+                if (obj === 'בית') drawHouse(objX, h * 0.7);
+                if (obj === 'מכונית') drawCar(objX, h * 0.78);
+                if (obj === 'ספסל') drawBench(objX, h * 0.75);
+                objX += w * 0.25;
+            });
+            
+            // Balloons
+            let balloonX = w * 0.3;
+            picture.balloons.forEach((color, i) => {
+                drawBalloon(balloonX + i * 40, h * 0.35, colorMap[color] || '#e74c3c');
+            });
+            
+            // Animals
+            let animalX = w * 0.5;
+            picture.animals.forEach(animal => {
+                if (animal === 'כלב') drawDog(animalX, h * 0.78);
+                if (animal === 'חתול') drawCat(animalX, h * 0.78);
+                if (animal === 'ציפור') drawBird(animalX, h * 0.25);
+                if (animal === 'פרפר') drawButterfly(animalX, h * 0.4);
+                animalX += 60;
+            });
+            
+            // Extra items
+            picture.items.forEach(item => {
+                if (item === 'כדור') drawBall(w * 0.6, h * 0.8);
+                if (item === 'שמשייה') drawUmbrella(w * 0.4, h * 0.65);
+                if (item === 'עפיפון') drawKite(w * 0.75, h * 0.3);
+            });
+        }
+        
+        // Drawing functions
+        function drawSun(x, y) {
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(x, y, 35, 0, Math.PI * 2);
+            ctx.fill();
+            // Rays
+            ctx.strokeStyle = '#FFA500';
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(x + Math.cos(angle) * 40, y + Math.sin(angle) * 40);
+                ctx.lineTo(x + Math.cos(angle) * 55, y + Math.sin(angle) * 55);
+                ctx.stroke();
+            }
+        }
+        
+        function drawMoon(x, y) {
+            ctx.fillStyle = '#F5F5DC';
+            ctx.beginPath();
+            ctx.arc(x, y, 30, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#1a1a2e';
+            ctx.beginPath();
+            ctx.arc(x + 12, y - 5, 25, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawStars() {
+            ctx.fillStyle = '#FFFFFF';
+            for (let i = 0; i < 15; i++) {
+                const x = randomInt(20, canvas.width - 20);
+                const y = randomInt(10, canvas.height * 0.5);
+                ctx.beginPath();
+                ctx.arc(x, y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function drawCloud(x, y) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(x, y, 25, 0, Math.PI * 2);
+            ctx.arc(x + 25, y - 10, 30, 0, Math.PI * 2);
+            ctx.arc(x + 50, y, 25, 0, Math.PI * 2);
+            ctx.arc(x + 25, y + 5, 20, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawTree(x, y) {
+            // Trunk
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(x - 10, y - 60, 20, 60);
+            // Leaves
+            ctx.fillStyle = '#228B22';
+            ctx.beginPath();
+            ctx.moveTo(x, y - 120);
+            ctx.lineTo(x - 40, y - 60);
+            ctx.lineTo(x + 40, y - 60);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x, y - 100);
+            ctx.lineTo(x - 35, y - 50);
+            ctx.lineTo(x + 35, y - 50);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        function drawHouse(x, y) {
+            // Wall
+            ctx.fillStyle = '#DEB887';
+            ctx.fillRect(x - 35, y - 50, 70, 50);
+            // Roof
+            ctx.fillStyle = '#8B0000';
+            ctx.beginPath();
+            ctx.moveTo(x, y - 90);
+            ctx.lineTo(x - 45, y - 50);
+            ctx.lineTo(x + 45, y - 50);
+            ctx.closePath();
+            ctx.fill();
+            // Door
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(x - 10, y - 35, 20, 35);
+            // Window
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(x + 15, y - 40, 15, 15);
+        }
+        
+        function drawCar(x, y) {
+            // Body
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(x - 30, y - 20, 60, 20);
+            ctx.fillRect(x - 20, y - 35, 40, 15);
+            // Wheels
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(x - 15, y, 8, 0, Math.PI * 2);
+            ctx.arc(x + 15, y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            // Windows
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(x - 15, y - 32, 12, 10);
+            ctx.fillRect(x + 3, y - 32, 12, 10);
+        }
+        
+        function drawBench(x, y) {
+            ctx.fillStyle = '#8B4513';
+            // Seat
+            ctx.fillRect(x - 30, y - 15, 60, 8);
+            // Back
+            ctx.fillRect(x - 30, y - 35, 60, 5);
+            // Legs
+            ctx.fillRect(x - 25, y - 15, 5, 20);
+            ctx.fillRect(x + 20, y - 15, 5, 20);
+        }
+        
+        function drawBalloon(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.ellipse(x, y, 18, 22, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Knot
+            ctx.beginPath();
+            ctx.moveTo(x - 5, y + 22);
+            ctx.lineTo(x, y + 28);
+            ctx.lineTo(x + 5, y + 22);
+            ctx.closePath();
+            ctx.fill();
+            // String
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x, y + 28);
+            ctx.quadraticCurveTo(x + 10, y + 50, x, y + 70);
+            ctx.stroke();
+            // Shine
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.beginPath();
+            ctx.ellipse(x - 5, y - 5, 5, 7, -0.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawDog(x, y) {
+            ctx.fillStyle = '#D2691E';
+            // Body
+            ctx.beginPath();
+            ctx.ellipse(x, y - 12, 20, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Head
+            ctx.beginPath();
+            ctx.arc(x + 18, y - 18, 12, 0, Math.PI * 2);
+            ctx.fill();
+            // Ears
+            ctx.beginPath();
+            ctx.ellipse(x + 25, y - 28, 5, 8, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            // Legs
+            ctx.fillRect(x - 12, y - 5, 6, 12);
+            ctx.fillRect(x + 6, y - 5, 6, 12);
+            // Tail
+            ctx.beginPath();
+            ctx.moveTo(x - 18, y - 15);
+            ctx.quadraticCurveTo(x - 30, y - 25, x - 25, y - 35);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#D2691E';
+            ctx.stroke();
+        }
+        
+        function drawCat(x, y) {
+            ctx.fillStyle = '#808080';
+            // Body
+            ctx.beginPath();
+            ctx.ellipse(x, y - 10, 15, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Head
+            ctx.beginPath();
+            ctx.arc(x + 15, y - 18, 10, 0, Math.PI * 2);
+            ctx.fill();
+            // Ears
+            ctx.beginPath();
+            ctx.moveTo(x + 10, y - 28);
+            ctx.lineTo(x + 8, y - 38);
+            ctx.lineTo(x + 16, y - 30);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x + 20, y - 28);
+            ctx.lineTo(x + 22, y - 38);
+            ctx.lineTo(x + 14, y - 30);
+            ctx.fill();
+            // Tail
+            ctx.beginPath();
+            ctx.moveTo(x - 15, y - 10);
+            ctx.quadraticCurveTo(x - 30, y - 5, x - 25, y - 25);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#808080';
+            ctx.stroke();
+        }
+        
+        function drawBird(x, y) {
+            ctx.fillStyle = '#4169E1';
+            // Body
+            ctx.beginPath();
+            ctx.ellipse(x, y, 12, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Head
+            ctx.beginPath();
+            ctx.arc(x + 10, y - 3, 6, 0, Math.PI * 2);
+            ctx.fill();
+            // Beak
+            ctx.fillStyle = '#FFA500';
+            ctx.beginPath();
+            ctx.moveTo(x + 16, y - 3);
+            ctx.lineTo(x + 22, y - 2);
+            ctx.lineTo(x + 16, y);
+            ctx.fill();
+            // Wing
+            ctx.fillStyle = '#1E90FF';
+            ctx.beginPath();
+            ctx.ellipse(x - 2, y - 2, 8, 5, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawButterfly(x, y) {
+            // Wings
+            ctx.fillStyle = '#FF69B4';
+            ctx.beginPath();
+            ctx.ellipse(x - 12, y - 5, 12, 15, -0.3, 0, Math.PI * 2);
+            ctx.ellipse(x + 12, y - 5, 12, 15, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFB6C1';
+            ctx.beginPath();
+            ctx.ellipse(x - 8, y + 8, 8, 10, -0.3, 0, Math.PI * 2);
+            ctx.ellipse(x + 8, y + 8, 8, 10, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            // Body
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.ellipse(x, y, 3, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Antennae
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x - 2, y - 10);
+            ctx.quadraticCurveTo(x - 8, y - 20, x - 5, y - 22);
+            ctx.moveTo(x + 2, y - 10);
+            ctx.quadraticCurveTo(x + 8, y - 20, x + 5, y - 22);
+            ctx.stroke();
+        }
+        
+        function drawFlower(x, y) {
+            const colors = ['#FF69B4', '#FFD700', '#FF6347', '#9370DB'];
+            ctx.fillStyle = randomChoice(colors);
+            for (let i = 0; i < 5; i++) {
+                const angle = (i / 5) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.arc(x + Math.cos(angle) * 5, y + Math.sin(angle) * 5, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawBall(x, y) {
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#c0392b';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x - 15, y);
+            ctx.lineTo(x + 15, y);
+            ctx.moveTo(x, y - 15);
+            ctx.quadraticCurveTo(x - 10, y, x, y + 15);
+            ctx.stroke();
+        }
+        
+        function drawUmbrella(x, y) {
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc(x, y, 35, Math.PI, 0);
+            ctx.fill();
+            // Stripes
+            ctx.fillStyle = '#c0392b';
+            ctx.beginPath();
+            ctx.moveTo(x - 10, y);
+            ctx.arc(x - 10, y, 12, Math.PI, 0);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x + 15, y);
+            ctx.arc(x + 15, y, 12, Math.PI, 0);
+            ctx.fill();
+            // Handle
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + 50);
+            ctx.quadraticCurveTo(x, y + 60, x - 8, y + 60);
+            ctx.stroke();
+        }
+        
+        function drawKite(x, y) {
+            ctx.fillStyle = '#9b59b6';
+            ctx.beginPath();
+            ctx.moveTo(x, y - 25);
+            ctx.lineTo(x + 20, y);
+            ctx.lineTo(x, y + 25);
+            ctx.lineTo(x - 20, y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#8e44ad';
+            ctx.beginPath();
+            ctx.moveTo(x, y - 25);
+            ctx.lineTo(x, y + 25);
+            ctx.lineTo(x - 20, y);
+            ctx.closePath();
+            ctx.fill();
+            // String
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x, y + 25);
+            ctx.quadraticCurveTo(x + 20, y + 60, x - 10, y + 80);
+            ctx.stroke();
+            // Tail bows
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc(x + 5, y + 45, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#3498db';
+            ctx.beginPath();
+            ctx.arc(x - 5, y + 65, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function generateQuestions(picture) {
+            const questions = [];
+            
+            // Question about sky
+            if (picture.sky) {
+                questions.push({
+                    q: 'מה היה בשמיים?',
+                    correct: picture.sky,
+                    wrong: elements.sky.filter(e => e !== picture.sky).slice(0, 3)
+                });
+            } else {
+                questions.push({
+                    q: 'האם הייתה שמש בתמונה?',
+                    correct: 'לא',
+                    wrong: ['כן']
+                });
+            }
+            
+            // Question about ground
+            questions.push({
+                q: 'מה היה על הקרקע?',
+                correct: picture.ground,
+                wrong: elements.ground.filter(e => e !== picture.ground).slice(0, 3)
+            });
+            
+            // Question about balloon count
+            questions.push({
+                q: 'כמה בלונים היו בתמונה?',
+                correct: picture.balloonCount.toString(),
+                wrong: ['1', '2', '3', '4', '5'].filter(n => n !== picture.balloonCount.toString()).slice(0, 3)
+            });
+            
+            // Question about balloon colors
+            if (picture.balloonColors.length > 0) {
+                const correctColor = picture.balloonColors[0];
+                questions.push({
+                    q: 'איזה צבע בלון היה בתמונה?',
+                    correct: correctColor,
+                    wrong: elements.colors.filter(c => !picture.balloonColors.includes(c)).slice(0, 3)
+                });
+            }
+            
+            // Question about objects
+            if (picture.objects.length > 0) {
+                questions.push({
+                    q: 'מה היה בתמונה?',
+                    correct: picture.objects[0],
+                    wrong: elements.objects.filter(o => !picture.objects.includes(o)).slice(0, 3)
+                });
+            }
+            
+            // Question about animals
+            if (picture.animals.length > 0) {
+                questions.push({
+                    q: 'איזו חיה הייתה בתמונה?',
+                    correct: picture.animals[0],
+                    wrong: elements.animals.filter(a => !picture.animals.includes(a)).slice(0, 3)
+                });
+            } else {
+                questions.push({
+                    q: 'האם הייתה חיה בתמונה?',
+                    correct: 'לא',
+                    wrong: ['כן']
+                });
+            }
+            
+            // Shuffle and limit based on level
+            const numQuestions = Math.min(5, 3 + Math.floor(level / 2));
+            return shuffleArray(questions).slice(0, numQuestions);
+        }
+        
+        function shuffleArray(arr) {
+            const shuffled = [...arr];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+        
+        function startGame() {
+            level = 1;
+            score = 0;
+            updateStats();
+            startRound();
+        }
+        
+        function startRound() {
+            // Generate picture
+            currentPicture = generatePicture();
+            currentQuestions = generateQuestions(currentPicture);
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            
+            // Hide overlay, show picture
+            document.getElementById('overlay').classList.add('hidden');
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('questionArea').classList.add('hidden');
+            document.getElementById('resultScreen').classList.add('hidden');
+            
+            // Draw picture
+            resizeCanvas();
+            drawPicture(currentPicture);
+            
+            // Start timer
+            const viewTime = getViewTime();
+            document.getElementById('viewTime').textContent = viewTime.toFixed(1);
+            showTimer(viewTime);
+        }
+        
+        function showTimer(seconds) {
+            const timerEl = document.getElementById('timer');
+            timerEl.classList.remove('hidden');
+            timerEl.textContent = seconds.toFixed(1);
+            
+            const startTime = Date.now();
+            const duration = seconds * 1000;
+            
+            const interval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const remaining = Math.max(0, (duration - elapsed) / 1000);
+                timerEl.textContent = remaining.toFixed(1);
+                
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    timerEl.classList.add('hidden');
+                    showQuestions();
+                }
+            }, 100);
+        }
+        
+        function showQuestions() {
+            document.getElementById('overlay').classList.remove('hidden');
+            document.getElementById('questionArea').classList.remove('hidden');
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            const q = currentQuestions[currentQuestionIndex];
+            document.getElementById('question').textContent = q.q;
+            document.getElementById('questionProgress').textContent = 
+                `שאלה ${currentQuestionIndex + 1} מתוך ${currentQuestions.length}`;
+            
+            // Create answer buttons
+            const answersEl = document.getElementById('answers');
+            answersEl.innerHTML = '';
+            
+            const allAnswers = shuffleArray([q.correct, ...q.wrong]);
+            allAnswers.forEach(answer => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = answer;
+                btn.onclick = () => checkAnswer(btn, answer === q.correct);
+                answersEl.appendChild(btn);
+            });
+        }
+        
+        function checkAnswer(btn, isCorrect) {
+            // Disable all buttons
+            document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                correctAnswers++;
+                score += 10 * level;
+            } else {
+                btn.classList.add('wrong');
+                // Show correct answer
+                document.querySelectorAll('.answer-btn').forEach(b => {
+                    if (b.textContent === currentQuestions[currentQuestionIndex].correct) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+            
+            updateStats();
+            
+            // Next question after delay
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < currentQuestions.length) {
+                    showQuestion();
+                } else {
+                    endRound();
+                }
+            }, 1000);
+        }
+        
+        function endRound() {
+            const accuracy = correctAnswers / currentQuestions.length;
+            
+            if (accuracy >= 0.6) {
+                // Passed! Next level
+                level++;
+                updateStats();
+                setTimeout(startRound, 500);
+            } else {
+                // Game over
+                showGameOver();
+            }
+        }
+        
+        function showGameOver() {
+            document.getElementById('questionArea').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('levelReached').textContent = `הגעת לרמה ${level}`;
+        }
+        
+        function updateStats() {
+            document.getElementById('level').textContent = level;
+            document.getElementById('score').textContent = score;
+            document.getElementById('viewTime').textContent = getViewTime().toFixed(1);
+        }
+    </script>
+</body>
+</html>
